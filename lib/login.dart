@@ -94,6 +94,7 @@ class _LoginPageState extends State<LoginPage> {
                     height: 200,
                     child: Image.asset('assets/images/logo.png'),
                   ),
+
                   SizedBox(
                     width: 320,
                     child: TextField(
@@ -110,8 +111,8 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                     ),
                   ),
-                  const SizedBox(height: 16),
 
+                  const SizedBox(height: 16),
                   // TextField password dengan ikon mata untuk menampilkan/menyembunyikan password
                   SizedBox(
                     width: 320,
@@ -146,7 +147,6 @@ class _LoginPageState extends State<LoginPage> {
                   ),
 
                   const SizedBox(height: 24),
-
                   // Tombol login dan register dalam satu row
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -157,15 +157,34 @@ class _LoginPageState extends State<LoginPage> {
                         child: ElevatedButton(
                           style: ElevatedButton.styleFrom(
                             backgroundColor: const Color.fromARGB(
-                              255, // Alpha (0 = transparan, 255 = solid)
-                              180, // Red
-                              210, // Greenr
-                              52, // Blue
+                              255,
+                              180,
+                              210,
+                              52,
                             ),
                             foregroundColor: Colors.white,
                             elevation: 3,
                           ),
-                          onPressed: _login,
+                          onPressed: () {
+                            final email = _emailController.text.trim();
+                            final password = _passwordController.text.trim();
+
+                            if (email.isEmpty || password.isEmpty) {
+                              // Kalau email/password kosong → tampilkan pesan error
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text(
+                                    "Email dan Password harus diisi!",
+                                  ),
+                                  backgroundColor: Colors.red,
+                                ),
+                              );
+                              return; // jangan lanjut login
+                            }
+
+                            // Kalau valid → panggil fungsi login
+                            _login();
+                          },
                           child: const Text(
                             'Login',
                             style: TextStyle(
