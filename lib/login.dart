@@ -44,6 +44,13 @@ class _LoginPageState extends State<LoginPage> {
     final String email = _emailController.text;
     final String password = _passwordController.text;
 
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('isLogin', true); // simpan status login
+
+    // Cek ulang nilai isLogin setelah diset
+    bool? status = prefs.getBool('isLogin');
+    print("DEBUG: isLogin diset jadi $status"); // tampil di terminal
+
     // Jika login berhasil
     Navigator.pushReplacement(
       context,

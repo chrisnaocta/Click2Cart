@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:tugas_kel_2_mobile_cloud_computing/keranjang.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'keranjang.dart';
+import 'login.dart';
+import 'productdetail_page.dart';
 
 class DashboardPage extends StatefulWidget {
   @override
@@ -19,48 +21,49 @@ class _DashboardPageState extends State<DashboardPage> {
   List<Map<String, dynamic>> products = [
     {
       "idproduct": "1",
-      "product": "Laptop Gaming",
-      "price": "15000000",
+      "product": "Apel Merah",
+      "price": "25000",
       "image":
-          "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=500",
-      "description":
-          "Laptop gaming dengan performa tinggi untuk kebutuhan multitasking dan bermain game.",
+          "https://images.unsplash.com/photo-1567306226416-28f0efdc88ce?w=500",
+      "description": "Apel merah segar dengan rasa manis alami.",
+      "quantity": 2,
     },
     {
       "idproduct": "2",
-      "product": "Smartphone",
-      "price": "5000000",
+      "product": "Pisang Cavendish",
+      "price": "20000",
       "image":
-          "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=500",
-      "description":
-          "Smartphone terbaru dengan kamera canggih dan baterai tahan lama.",
+          "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR2x775CuxaRE8mfmBhucwBsBMAdQ5B5Fr3Bw&s",
+      "description": "Pisang cavendish manis, cocok untuk camilan sehat.",
+      "quantity": 1,
     },
     {
       "idproduct": "3",
-      "product": "Headset",
-      "price": "750000",
+      "product": "Jeruk Bali",
+      "price": "30000",
       "image":
-          "https://images.unsplash.com/photo-1583225298304-336e8e6e9f3b?w=500",
-      "description":
-          "Headset berkualitas tinggi dengan suara jernih dan bass mantap.",
+          "https://www.lapakbuah.com/wp-content/uploads/2021/07/Jeruk-pamelo.jpg",
+      "description": "Jeruk manis segar kaya vitamin C.",
+      "quantity": 3,
     },
     {
       "idproduct": "4",
-      "product": "Keyboard Mechanical",
-      "price": "1200000",
+      "product": "Anggur Hijau",
+      "price": "45000",
       "image":
-          "https://images.unsplash.com/photo-1595225476474-8756399e25db?w=500",
-      "description":
-          "Keyboard mechanical dengan switch tactile dan backlight RGB.",
+          "https://res.cloudinary.com/dk0z4ums3/image/upload/v1695030331/attached_image/6-manfaat-anggur-hijau-untuk-kesehatan.jpg",
+      "description": "Anggur hijau segar, manis sedikit asam.",
+      "quantity": 1,
     },
     {
       "idproduct": "5",
-      "product": "Smartwatch",
-      "price": "2500000",
+      "product": "Mangga Harum Manis",
+      "price": "35000",
       "image":
-          "https://images.unsplash.com/photo-1519744792095-2f2205e87b6f?w=500",
+          "https://www.tanamanmart.com/wp-content/uploads/2017/02/harum-manis-1.jpg",
       "description":
-          "Smartwatch modern untuk fitness tracking dan notifikasi real-time.",
+          "Mangga harum manis segar, cocok untuk jus atau dimakan langsung.",
+      "quantity": 2,
     },
   ];
 
@@ -71,10 +74,29 @@ class _DashboardPageState extends State<DashboardPage> {
   }
 
   // Function logout dummy
-  void _logout() {
+  void _logout() async {
+    final prefs = await SharedPreferences.getInstance();
+
+    // Hapus semua data session
+    // await prefs.clear();
+
+    // Hanya mau hapus flag login:
+    await prefs.remove('isLogin');
+
+    // Cek ulang nilai isLogin setelah diset
+    bool? status = prefs.getBool('isLogin');
+    print("DEBUG: isLogin diset jadi $status"); // tampil di terminal
+
+    // Tampilkan snackbar
     ScaffoldMessenger.of(
       context,
-    ).showSnackBar(SnackBar(content: Text("Logout berhasil (dummy action)")));
+    ).showSnackBar(SnackBar(content: Text("Logout berhasil")));
+
+    // Arahkan ke LoginPage
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => LoginPage()),
+    );
   }
 
   @override
@@ -84,27 +106,60 @@ class _DashboardPageState extends State<DashboardPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: SizedBox(
-          child: Text(
-            "Click2Cart Dashboard",
-            style: TextStyle(
-              color: Color.fromARGB(255, 19, 42, 166),
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ),
-        backgroundColor: Color.fromARGB(255, 252, 252, 255),
-        foregroundColor: Color.fromARGB(255, 19, 42, 166),
-        toolbarHeight: 80,
+        backgroundColor: const Color.fromARGB(255, 252, 252, 255),
+        foregroundColor: Colors.black,
+        toolbarHeight: 60,
         scrolledUnderElevation: 0,
+        titleSpacing: 0,
+        title: Row(
+          children: [
+            // Logo di kiri
+            Padding(
+              padding: const EdgeInsets.only(left: 8.0),
+              child: Image.asset(
+                'assets/images/logo.png',
+                width: 50,
+                height: 50,
+              ),
+            ),
+            // Expanded agar teks pas di tengah
+            Expanded(
+              child: Center(
+                child: Text(
+                  "Dashboard",
+                  style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: Color.fromARGB(255, 180, 210, 52),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          IconButton(
+            icon: const Icon(
+              Icons.logout,
+              color: Color.fromARGB(255, 180, 210, 52),
+            ),
+            onPressed: _logout,
+          ),
+        ],
       ),
+
       drawer: Drawer(
         backgroundColor: Colors.white,
         child: Column(
           children: [
             UserAccountsDrawerHeader(
               decoration: BoxDecoration(
-                color: Color.fromARGB(255, 19, 42, 166),
+                color: Color.fromARGB(
+                  255, // Alpha (0 = transparan, 255 = solid)
+                  180, // Red
+                  210, // Greenr
+                  52, // Blue
+                ),
               ),
               accountName: Text(
                 userName,
@@ -115,7 +170,10 @@ class _DashboardPageState extends State<DashboardPage> {
               ),
               accountEmail: Text(
                 userEmail,
-                style: TextStyle(color: Colors.white),
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
               currentAccountPicture: CircleAvatar(
                 backgroundImage: NetworkImage(userProfilePhoto),
@@ -138,15 +196,6 @@ class _DashboardPageState extends State<DashboardPage> {
                 Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(builder: (context) => KeranjangPage()),
-                );
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.settings),
-              title: Text('Settings'),
-              onTap: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text("Navigasi Settings (dummy)")),
                 );
               },
             ),
@@ -236,19 +285,25 @@ class _DashboardPageState extends State<DashboardPage> {
                               SizedBox(height: 8),
                               ElevatedButton(
                                 onPressed: () {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: Text(
-                                        "Beli ${product['product']} (dummy)",
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => ProductDetailPage(
+                                        productName: product['product'],
+                                        productPrice: product['price'],
+                                        productImage: product['image'],
+                                        productDescription:
+                                            product['description'],
+                                        productId: product['idproduct'],
                                       ),
                                     ),
                                   );
                                 },
-                                child: Text('Beli'),
+                                child: const Text('Beli'),
                                 style: ElevatedButton.styleFrom(
-                                  minimumSize: Size(double.infinity, 36),
+                                  minimumSize: const Size(double.infinity, 36),
                                   elevation: 0,
-                                  backgroundColor: Color.fromARGB(
+                                  backgroundColor: const Color.fromARGB(
                                     255,
                                     19,
                                     42,

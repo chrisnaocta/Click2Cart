@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'dart:convert';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'pembayaran.dart';
+import 'dashboard_page.dart';
 
 class KeranjangPage extends StatefulWidget {
   @override
@@ -9,54 +12,25 @@ class KeranjangPage extends StatefulWidget {
 
 class _KeranjangPageState extends State<KeranjangPage> {
   // Dummy data keranjang
-  List<Map<String, dynamic>> cartItems = [
-    {
-      "idproduct": "1",
-      "product": "Apel Merah",
-      "price": "25000",
-      "image":
-          "https://images.unsplash.com/photo-1567306226416-28f0efdc88ce?w=500",
-      "description": "Apel merah segar dengan rasa manis alami.",
-      "quantity": 2,
-    },
-    {
-      "idproduct": "2",
-      "product": "Pisang Cavendish",
-      "price": "20000",
-      "image":
-          "https://images.unsplash.com/photo-1574226516831-e1dff420e43e?w=500",
-      "description": "Pisang cavendish manis, cocok untuk camilan sehat.",
-      "quantity": 1,
-    },
-    {
-      "idproduct": "3",
-      "product": "Jeruk Manis",
-      "price": "30000",
-      "image":
-          "https://images.unsplash.com/photo-1611080626919-7cf5a9dbab5e?w=500",
-      "description": "Jeruk manis segar kaya vitamin C.",
-      "quantity": 3,
-    },
-    {
-      "idproduct": "4",
-      "product": "Anggur Hijau",
-      "price": "45000",
-      "image":
-          "https://images.unsplash.com/photo-1601004890684-d8cbf643f5f2?w=500",
-      "description": "Anggur hijau segar, manis sedikit asam.",
-      "quantity": 1,
-    },
-    {
-      "idproduct": "5",
-      "product": "Mangga Harum Manis",
-      "price": "35000",
-      "image":
-          "https://images.unsplash.com/photo-1605026113576-1384e4a65a14?w=500",
-      "description":
-          "Mangga harum manis segar, cocok untuk jus atau dimakan langsung.",
-      "quantity": 2,
-    },
-  ];
+  List<Map<String, dynamic>> cartItems = []; // awalnya kosong
+
+  @override
+  void initState() {
+    super.initState();
+    _loadCart();
+  }
+
+  // Fungsi untuk ambil keranjang dari SharedPreferences
+  Future<void> _loadCart() async {
+    final prefs = await SharedPreferences.getInstance();
+    List<String> cart = prefs.getStringList('cart') ?? [];
+
+    setState(() {
+      cartItems = cart
+          .map((item) => jsonDecode(item) as Map<String, dynamic>)
+          .toList();
+    });
+  }
 
   // Fungsi format harga
   String formatCurrency(String price) {
@@ -69,46 +43,59 @@ class _KeranjangPageState extends State<KeranjangPage> {
     int total = 0;
     for (var item in cartItems) {
       final int price = int.parse(item['price']);
-      final int qty = (item['quantity'] as num)
-          .toInt(); // aman untuk int/double/num
+      final int qty = (item['quantity'] as num).toInt();
       total += price * qty;
     }
     return total;
   }
 
-  // Fungsi hapus item dari keranjang
-  void removeItem(int index) {
+  // Hapus item
+  Future<void> removeItem(int index) async {
+    final prefs = await SharedPreferences.getInstance();
     setState(() {
       cartItems.removeAt(index);
+      prefs.setStringList(
+        'cart',
+        cartItems.map((item) => jsonEncode(item)).toList(),
+      );
     });
   }
 
-  // Fungsi tambah jumlah
-  void incrementQty(int index) {
+  // Tambah jumlah
+  Future<void> incrementQty(int index) async {
+    final prefs = await SharedPreferences.getInstance();
     setState(() {
       cartItems[index]['quantity']++;
+      prefs.setStringList(
+        'cart',
+        cartItems.map((item) => jsonEncode(item)).toList(),
+      );
     });
   }
 
-  // Fungsi kurang jumlah
-  void decrementQty(int index) {
+  // Kurang jumlah
+  Future<void> decrementQty(int index) async {
+    final prefs = await SharedPreferences.getInstance();
     if (cartItems[index]['quantity'] > 1) {
       setState(() {
         cartItems[index]['quantity']--;
+        prefs.setStringList(
+          'cart',
+          cartItems.map((item) => jsonEncode(item)).toList(),
+        );
       });
     }
   }
 
-  // Fungsi checkout
+  // Checkout
   void checkout() {
     if (cartItems.isEmpty) {
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(SnackBar(content: Text("Keranjang kosong")));
+      ).showSnackBar(const SnackBar(content: Text("Keranjang kosong")));
       return;
     }
 
-    // Untuk demo → arahkan ke pembayaran dengan item pertama
     final firstItem = cartItems.first;
 
     Navigator.push(
@@ -134,8 +121,17 @@ class _KeranjangPageState extends State<KeranjangPage> {
       appBar: AppBar(
         title: Text("Keranjang Belanja"),
         backgroundColor: Color.fromARGB(255, 252, 252, 255),
-        foregroundColor: Color.fromARGB(255, 19, 42, 166),
+        foregroundColor: Color.fromARGB(255, 19, 166, 42),
         toolbarHeight: 80,
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => DashboardPage()),
+            );
+          },
+        ),
       ),
       body: Column(
         children: [
@@ -208,13 +204,13 @@ class _KeranjangPageState extends State<KeranjangPage> {
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
-                    color: Color.fromARGB(255, 19, 42, 166),
+                    color: Color.fromARGB(255, 19, 166, 42),
                   ),
                 ),
                 ElevatedButton(
                   onPressed: checkout,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Color.fromARGB(255, 19, 42, 166),
+                    backgroundColor: Color.fromARGB(255, 19, 166, 42),
                     foregroundColor: Colors.white,
                   ),
                   child: Text("Checkout"),
