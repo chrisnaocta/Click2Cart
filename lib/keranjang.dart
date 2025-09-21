@@ -139,7 +139,7 @@ class _KeranjangPageState extends State<KeranjangPage> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        toolbarHeight: 80,
+        toolbarHeight: 50,
         centerTitle: true,
         scrolledUnderElevation: 0,
 

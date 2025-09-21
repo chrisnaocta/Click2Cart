@@ -3,6 +3,7 @@ import 'package:image_picker/image_picker.dart'; // Untuk ambil gambar
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
+import 'package:tugas_kel_2_mobile_cloud_computing/keranjang.dart';
 
 class PembayaranPage extends StatefulWidget {
   final String productName;
@@ -99,11 +100,45 @@ class _PembayaranPageState extends State<PembayaranPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text("Pembayaran"),
-        backgroundColor: Color.fromARGB(255, 252, 252, 255),
-        foregroundColor: Color.fromARGB(255, 19, 42, 166),
-        toolbarHeight: 80,
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        toolbarHeight: 50,
+        centerTitle: true,
         scrolledUnderElevation: 0,
+
+        // 🔥 Gradient sama seperti dashboard
+        flexibleSpace: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                Color.fromARGB(255, 144, 238, 144), // hijau muda
+                Color.fromARGB(255, 34, 139, 34), // hijau segar
+                Color.fromARGB(255, 0, 128, 128), // teal aksen
+              ],
+            ),
+          ),
+        ),
+
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => KeranjangPage()),
+            );
+          },
+        ),
+
+        title: const Text(
+          "Pembayaran",
+          style: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+            color: Colors.white, // putih biar kontras
+          ),
+        ),
       ),
       body: SingleChildScrollView(
         child: Stack(

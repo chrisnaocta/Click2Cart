@@ -108,7 +108,7 @@ class _DashboardPageState extends State<DashboardPage> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0, // biar rapi
-        toolbarHeight: 60,
+        toolbarHeight: 50,
         scrolledUnderElevation: 0,
         titleSpacing: 0,
         centerTitle: true,
