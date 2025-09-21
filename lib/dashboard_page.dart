@@ -26,7 +26,6 @@ class _DashboardPageState extends State<DashboardPage> {
       "image":
           "https://images.unsplash.com/photo-1567306226416-28f0efdc88ce?w=500",
       "description": "Apel merah segar dengan rasa manis alami.",
-      "quantity": 2,
     },
     {
       "idproduct": "2",
@@ -35,7 +34,6 @@ class _DashboardPageState extends State<DashboardPage> {
       "image":
           "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR2x775CuxaRE8mfmBhucwBsBMAdQ5B5Fr3Bw&s",
       "description": "Pisang cavendish manis, cocok untuk camilan sehat.",
-      "quantity": 1,
     },
     {
       "idproduct": "3",
@@ -44,7 +42,6 @@ class _DashboardPageState extends State<DashboardPage> {
       "image":
           "https://www.lapakbuah.com/wp-content/uploads/2021/07/Jeruk-pamelo.jpg",
       "description": "Jeruk manis segar kaya vitamin C.",
-      "quantity": 3,
     },
     {
       "idproduct": "4",
@@ -53,7 +50,6 @@ class _DashboardPageState extends State<DashboardPage> {
       "image":
           "https://res.cloudinary.com/dk0z4ums3/image/upload/v1695030331/attached_image/6-manfaat-anggur-hijau-untuk-kesehatan.jpg",
       "description": "Anggur hijau segar, manis sedikit asam.",
-      "quantity": 1,
     },
     {
       "idproduct": "5",
@@ -63,7 +59,54 @@ class _DashboardPageState extends State<DashboardPage> {
           "https://www.tanamanmart.com/wp-content/uploads/2017/02/harum-manis-1.jpg",
       "description":
           "Mangga harum manis segar, cocok untuk jus atau dimakan langsung.",
-      "quantity": 2,
+    },
+    {
+      "idproduct": "6",
+      "product": "Semangka Merah",
+      "price": "28000",
+      "image":
+          "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRkOcieLvrAtQqLxdIqT_yTajahv38rEtH4XQ&s",
+      "description": "Semangka merah segar, kaya air dan menyegarkan.",
+    },
+    {
+      "idproduct": "7",
+      "product": "Nanas Madu",
+      "price": "22000",
+      "image":
+          "https://s3-publishing-cmn-svc-prd.s3.ap-southeast-1.amazonaws.com/article/WmyfGQSMe1s8bYopJ-3Lv/original/052500500_1605602630-Menilik-Manfaat-Nanas-Madu-bagi-Kesehatan-Anda-shutterstock_1503954347.jpg",
+      "description": "Nanas madu manis segar, cocok dibuat jus.",
+    },
+    {
+      "idproduct": "8",
+      "product": "Stroberi",
+      "price": "40000",
+      "image":
+          "https://pasarrakyatbali.com/cdn/shop/products/bua-018_750x.png?v=1590325108",
+      "description": "Stroberi segar manis-asam, kaya antioksidan.",
+    },
+    {
+      "idproduct": "9",
+      "product": "Kiwi Hijau",
+      "price": "50000",
+      "image":
+          "https://pasarsegar.co.id/wp-content/uploads/2020/10/Kiwi20Hijau.jpg",
+      "description": "Kiwi hijau segar dengan rasa asam manis yang unik.",
+    },
+    {
+      "idproduct": "10",
+      "product": "Pepaya California",
+      "price": "18000",
+      "image":
+          "https://drivethru.klikindomaret.com/tz0m/wp-content/uploads/sites/23/2022/06/Pepaya-new.jpeg",
+      "description": "Pepaya california manis lembut, kaya serat.",
+    },
+    {
+      "idproduct": "11",
+      "product": "Pir Hijau",
+      "price": "27000",
+      "image":
+          "https://res.cloudinary.com/dk0z4ums3/image/upload/v1741760065/attached_image/pir-hijau-inilah-nutrisi-dan-manfaatnya-untuk-kesehatan.jpg",
+      "description": "Pir hijau segar, renyah dengan rasa manis alami.",
     },
   ];
 
