@@ -1,40 +1,28 @@
 import 'dart:io';
-import 'package:image_picker/image_picker.dart'; // Untuk ambil gambar
+import 'package:image_picker/image_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
-import 'package:tugas_kel_2_mobile_cloud_computing/keranjang.dart';
+import 'keranjang.dart';
+import 'dashboard_page.dart';
 
 class PembayaranPage extends StatefulWidget {
-  final String productName;
-  final String productPrice;
-  final String productImage;
-  final String productDescription;
-  final String productId;
-  final String quantity;
+  final List<Map<String, dynamic>> selectedProducts;
 
-  PembayaranPage({
-    required this.productName,
-    required this.productPrice,
-    required this.productImage,
-    required this.productDescription,
-    required this.productId,
-    required this.quantity,
-  }) : super();
+  const PembayaranPage({Key? key, required this.selectedProducts})
+    : super(key: key);
 
   @override
   _PembayaranPageState createState() => _PembayaranPageState();
 }
 
 class _PembayaranPageState extends State<PembayaranPage> {
-  final TextEditingController _quantityController = TextEditingController();
   File? _imageFile;
   final ImagePicker _picker = ImagePicker();
-
-  String total = '0';
   bool uploaded = false;
+  String _selectedMethod = "qris"; // default ke QRIS
 
-  // Data user dummy (tidak dari database)
+  // Dummy data user
   String userName = 'John Doe';
   String userEmail = 'john@example.com';
   String userAlamat = 'Jl. Kebon Jeruk No. 123, Jakarta';
@@ -56,71 +44,45 @@ class _PembayaranPageState extends State<PembayaranPage> {
     }
   }
 
-  void setQuantity() {
-    _quantityController..text = widget.quantity;
-  }
-
-  void calculateTotal() {
-    String cleanedPrice = widget.productPrice.replaceAll(RegExp(r'[^0-9]'), '');
-    int price = int.parse(cleanedPrice);
-    int qty = int.parse(widget.quantity);
-
-    int totalPrice = price * qty;
-    total = totalPrice.toString();
-  }
-
-  // Fungsi format harga
+  // Format harga
   String formatCurrency(String price) {
     final formatter = NumberFormat.currency(locale: 'id', symbol: 'Rp ');
     return formatter.format(int.parse(price));
   }
 
   @override
-  void initState() {
-    super.initState();
-    setQuantity();
-    calculateTotal();
-  }
-
-  @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
-    final screenHeight = MediaQuery.of(context).size.height;
 
-    var uploadedText = Text("");
-    if (uploaded) {
-      uploadedText = Text(
-        "Uploaded ",
-        style: TextStyle(
-          fontSize: 16,
-          color: const Color.fromARGB(255, 19, 42, 166),
-        ),
-      );
-    }
+    // Hitung total
+    int totalHarga = widget.selectedProducts.fold(0, (sum, item) {
+      int price = int.parse(item['price'].toString());
+      int qty = (item['quantity'] as num).toInt();
+      return sum + (price * qty);
+    });
+
+    var uploadedText = uploaded
+        ? Text("Uploaded ", style: TextStyle(fontSize: 16, color: Colors.blue))
+        : SizedBox.shrink();
 
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        toolbarHeight: 50,
         centerTitle: true,
-        scrolledUnderElevation: 0,
-
-        // 🔥 Gradient sama seperti dashboard
         flexibleSpace: Container(
           decoration: const BoxDecoration(
             gradient: LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
               colors: [
-                Color.fromARGB(255, 144, 238, 144), // hijau muda
-                Color.fromARGB(255, 34, 139, 34), // hijau segar
-                Color.fromARGB(255, 0, 128, 128), // teal aksen
+                Color.fromARGB(255, 144, 238, 144),
+                Color.fromARGB(255, 34, 139, 34),
+                Color.fromARGB(255, 0, 128, 128),
               ],
             ),
           ),
         ),
-
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () {
@@ -130,267 +92,179 @@ class _PembayaranPageState extends State<PembayaranPage> {
             );
           },
         ),
-
         title: const Text(
           "Pembayaran",
           style: TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.bold,
-            color: Colors.white, // putih biar kontras
+            color: Colors.white,
           ),
         ),
       ),
+
       body: SingleChildScrollView(
-        child: Stack(
+        child: Column(
           children: [
+            // ✅ List Produk
             Container(
-              width: screenWidth,
-              height: screenHeight,
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    Color.fromARGB(255, 246, 246, 255),
-                    Color.fromARGB(255, 246, 246, 255),
-                  ],
-                  stops: [0, 1],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
+              color: Colors.white,
+              child: ListView.builder(
+                shrinkWrap: true,
+                physics: NeverScrollableScrollPhysics(),
+                itemCount: widget.selectedProducts.length,
+                itemBuilder: (context, index) {
+                  final item = widget.selectedProducts[index];
+                  return ListTile(
+                    leading: Image.network(
+                      item['image'],
+                      width: 60,
+                      height: 60,
+                      fit: BoxFit.contain,
+                      errorBuilder: (context, error, stackTrace) {
+                        return Icon(Icons.error, size: 50, color: Colors.red);
+                      },
+                    ),
+                    title: Text(item['product']),
+                    subtitle: Text(
+                      "${formatCurrency(item['price'].toString())} x ${item['quantity']}",
+                    ),
+                  );
+                },
               ),
             ),
+
+            SizedBox(height: 8),
+
+            // ✅ Total
             Container(
+              color: Colors.white,
+              width: screenWidth,
+              padding: EdgeInsets.all(20),
               child: Column(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Bagian Pesanan
-                  Container(
-                    color: Colors.white,
-                    child: Padding(
-                      padding: const EdgeInsets.all(20.0),
-                      child: Row(
-                        children: [
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                "Pesanan",
-                                style: TextStyle(
-                                  color: Color.fromARGB(200, 19, 42, 166),
-                                ),
-                              ),
-                              SizedBox(height: 8),
-                              Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Container(
-                                    width: screenWidth - 106,
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Image.network(
-                                          widget.productImage,
-                                          width: 80,
-                                          height: 80,
-                                          fit: BoxFit.contain,
-                                          errorBuilder:
-                                              (context, error, stackTrace) {
-                                                return Icon(
-                                                  Icons.error,
-                                                  size: 50,
-                                                  color: Colors.red,
-                                                );
-                                              },
-                                        ),
-                                        SizedBox(height: 4),
-                                        Text(
-                                          widget.productName,
-                                          style: TextStyle(fontSize: 16),
-                                        ),
-                                        Text(widget.productPrice),
-                                      ],
-                                    ),
-                                  ),
-                                  Container(
-                                    width: 50,
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.end,
-                                      children: [
-                                        Text("Jumlah"),
-                                        SizedBox(
-                                          width: 50,
-                                          height: 30,
-                                          child: TextField(
-                                            enabled: false,
-                                            textAlign: TextAlign.right,
-                                            style: TextStyle(
-                                              color: const Color.fromARGB(
-                                                255,
-                                                90,
-                                                90,
-                                                90,
-                                              ),
-                                              fontSize: 16,
-                                            ),
-                                            keyboardType: TextInputType.number,
-                                            inputFormatters:
-                                                <TextInputFormatter>[
-                                                  FilteringTextInputFormatter
-                                                      .digitsOnly,
-                                                ],
-                                            controller: _quantityController,
-                                            decoration: InputDecoration(
-                                              border: OutlineInputBorder(
-                                                borderSide: BorderSide(
-                                                  width: 1,
-                                                  color: const Color.fromARGB(
-                                                    255,
-                                                    31,
-                                                    31,
-                                                    31,
-                                                  ),
-                                                ),
-                                              ),
-                                              contentPadding:
-                                                  EdgeInsets.symmetric(
-                                                    horizontal: 10.0,
-                                                  ),
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-
+                  Text("Total", style: TextStyle(color: Colors.green)),
                   SizedBox(height: 8),
-
-                  // Bagian Total
-                  Container(
-                    color: Colors.white,
-                    width: screenWidth,
-                    child: Padding(
-                      padding: const EdgeInsets.all(20.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            "Total",
-                            style: TextStyle(
-                              color: Color.fromARGB(200, 19, 42, 166),
-                            ),
-                          ),
-                          SizedBox(height: 8),
-                          Text(
-                            formatCurrency(total),
-                            style: TextStyle(fontSize: 16),
-                          ),
-                        ],
-                      ),
-                    ),
+                  Text(
+                    formatCurrency(totalHarga.toString()),
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                   ),
-
-                  SizedBox(height: 8),
-
-                  // Info Transfer
-                  Container(
-                    width: screenWidth,
-                    decoration: BoxDecoration(color: Colors.white),
-                    child: Padding(
-                      padding: const EdgeInsets.all(20.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            "Mohon cantumkan email anda pada pesan transfer.",
-                          ),
-                          SizedBox(height: 8),
-                          Text(
-                            "BCA\nXXXXXXXXXX\nA.N ZONA ELEKTRONIK",
-                            style: TextStyle(fontSize: 15),
-                          ),
-                          SizedBox(height: 16),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              ElevatedButton(
-                                onPressed: _pickImage,
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: const Color.fromARGB(
-                                    255,
-                                    240,
-                                    240,
-                                    240,
-                                  ),
-                                  foregroundColor: Color.fromARGB(
-                                    255,
-                                    39,
-                                    39,
-                                    39,
-                                  ),
-                                  elevation: 0,
-                                ),
-                                child: Text(
-                                  'Upload Bukti Transfer',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    letterSpacing: 0,
-                                  ),
-                                ),
-                              ),
-                              uploadedText,
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-
-                  // Info tambahan
-                  Padding(
-                    padding: const EdgeInsets.all(20.0),
-                    child: Text(
-                      "Pastikan semua data sudah benar sebelum melakukan pembayaran. "
-                      "Apabila ada kekeliruan pada nominal transfer, jumlah seluruhnya "
-                      "akan dikembalikan ke rekening Anda setelah pesanan melewati review.",
-                    ),
-                  ),
-
-                  SizedBox(height: 20),
-
-                  // Tombol Buat Pesanan
-                  SizedBox(
-                    width: screenWidth - 80,
-                    child: ElevatedButton(
-                      onPressed: () {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text("Pesanan berhasil dibuat (UI Only)"),
-                            backgroundColor: Colors.green,
-                          ),
-                        );
-                      },
-                      child: Text('Buat Pesanan'),
-                      style: ElevatedButton.styleFrom(
-                        minimumSize: Size(double.infinity, 36),
-                        backgroundColor: Color.fromARGB(255, 4, 28, 162),
-                        foregroundColor: Colors.white,
-                      ),
-                    ),
-                  ),
-
-                  SizedBox(height: 20),
                 ],
               ),
             ),
+
+            SizedBox(height: 8),
+
+            // ✅ Info Pembayaran
+            Container(
+              color: Colors.white,
+              width: screenWidth,
+              padding: EdgeInsets.all(20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    "Pilih Metode Pembayaran",
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                      color: Colors.green,
+                    ),
+                  ),
+                  SizedBox(height: 12),
+
+                  // Radio button QRIS
+                  RadioListTile<String>(
+                    title: Text("QRIS"),
+                    value: "qris",
+                    groupValue: _selectedMethod,
+                    activeColor:
+                        Colors.black, // ⬅ warna saat dipilih jadi hitam
+                    onChanged: (value) {
+                      setState(() {
+                        _selectedMethod = value!;
+                      });
+                    },
+                  ),
+
+                  // Radio button Virtual Account
+                  RadioListTile<String>(
+                    title: Text("Virtual Account"),
+                    value: "va",
+                    groupValue: _selectedMethod,
+                    activeColor:
+                        Colors.black, // ⬅ warna saat dipilih jadi hitam
+                    onChanged: (value) {
+                      setState(() {
+                        _selectedMethod = value!;
+                      });
+                    },
+                  ),
+
+                  SizedBox(height: 16),
+
+                  // ✅ Tampilkan detail sesuai pilihan
+                  if (_selectedMethod == "qris") ...[
+                    Text(
+                      "Scan QRIS berikut untuk membayar:",
+                      style: TextStyle(fontSize: 14),
+                    ),
+                    SizedBox(height: 8),
+                    Image.network(
+                      "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=contoh-qris",
+                      width: 150,
+                      height: 150,
+                    ),
+                  ] else if (_selectedMethod == "va") ...[
+                    Text(
+                      "Virtual Account (BCA)",
+                      style: TextStyle(fontSize: 14),
+                    ),
+                    SizedBox(height: 8),
+                    Text(
+                      "1234567890",
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    SizedBox(height: 4),
+                    Text("A.N Click2Cart"),
+                  ],
+                ],
+              ),
+            ),
+
+            // ✅ Tombol Buat Pesanan
+            SizedBox(
+              width: screenWidth - 80,
+              child: ElevatedButton(
+                onPressed: () {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text("Pesanan berhasil dibuat"),
+                      backgroundColor: Colors.green,
+                    ),
+                  );
+
+                  // Delay sebentar biar SnackBar sempat tampil
+                  Future.delayed(Duration(seconds: 1), () {
+                    Navigator.pushAndRemoveUntil(
+                      context,
+                      MaterialPageRoute(builder: (context) => DashboardPage()),
+                      (route) => false, // hapus semua route sebelumnya
+                    );
+                  });
+                },
+                child: Text('Buat Pesanan'),
+                style: ElevatedButton.styleFrom(
+                  minimumSize: Size(double.infinity, 36),
+                  backgroundColor: Color.fromARGB(255, 19, 166, 42),
+                  foregroundColor: Colors.white,
+                ),
+              ),
+            ),
+            SizedBox(height: 20),
           ],
         ),
       ),

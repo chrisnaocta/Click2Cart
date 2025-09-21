@@ -100,9 +100,7 @@ class _KeranjangPageState extends State<KeranjangPage> {
     List<Map<String, dynamic>> selected = cartItems
         .asMap()
         .entries
-        .where((entry) {
-          return selectedItems[entry.key];
-        })
+        .where((entry) => selectedItems[entry.key])
         .map((entry) => entry.value)
         .toList();
 
@@ -113,19 +111,12 @@ class _KeranjangPageState extends State<KeranjangPage> {
       return;
     }
 
-    // kirim hanya item pertama (atau bisa dikirim list semua item, tergantung kebutuhan)
-    final firstItem = selected.first;
-
+    // 👉 Kirim semua item terpilih, bukan cuma yang pertama
     Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => PembayaranPage(
-          productName: firstItem['product'],
-          productPrice: firstItem['price'],
-          productImage: firstItem['image'],
-          productDescription: firstItem['description'],
-          productId: firstItem['idproduct'],
-          quantity: firstItem['quantity'].toString(),
+          selectedProducts: selected, // kirim list ke pembayaran.dart
         ),
       ),
     );
