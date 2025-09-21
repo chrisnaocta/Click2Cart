@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'login.dart'; // Import login.dart
 
 // Warna dominan yang digunakan (hijau)
-// Color.fromARGB(255, 19, 166, 42)
-// Color: Color.fromARGB(255, 180, 210, 52)
+// Color.fromARGB(255, 19, 166, 42) - Gelap
+// Color.fromARGB(255, 180, 210, 52) - Terang
 
 void main() {
   runApp(MyApp());

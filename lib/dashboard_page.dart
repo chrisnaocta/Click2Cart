@@ -106,107 +106,139 @@ class _DashboardPageState extends State<DashboardPage> {
 
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: const Color.fromARGB(255, 252, 252, 255),
-        foregroundColor: Colors.black,
+        backgroundColor: Colors.transparent,
+        elevation: 0, // biar rapi
         toolbarHeight: 60,
         scrolledUnderElevation: 0,
         titleSpacing: 0,
-        title: Row(
-          children: [
-            // Logo di kiri
-            Padding(
-              padding: const EdgeInsets.only(left: 8.0),
-              child: Image.asset(
-                'assets/images/logo.png',
-                width: 50,
-                height: 50,
-              ),
+        centerTitle: true,
+        automaticallyImplyLeading: false,
+
+        // 🔥 Gradient background
+        flexibleSpace: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                Color.fromARGB(255, 180, 210, 52), // hijau muda
+                Color.fromARGB(255, 19, 166, 42), // hijau segar
+                Color.fromARGB(255, 0, 100, 0), // hijau gelap
+              ],
             ),
-            // Expanded agar teks pas di tengah
-            Expanded(
-              child: Center(
-                child: Text(
-                  "Dashboard",
-                  style: const TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: Color.fromARGB(255, 180, 210, 52),
-                  ),
+          ),
+        ),
+
+        leading: SizedBox(
+          width: 90,
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Builder(
+                builder: (context) => IconButton(
+                  icon: const Icon(Icons.menu, color: Colors.white),
+                  onPressed: () {
+                    Scaffold.of(context).openDrawer();
+                  },
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
+
+        title: const Text(
+          "Dashboard",
+          style: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+            color: Colors.white, // teks putih agar kontras
+          ),
+        ),
+
         actions: [
           IconButton(
-            icon: const Icon(
-              Icons.logout,
-              color: Color.fromARGB(255, 180, 210, 52),
-            ),
+            icon: const Icon(Icons.logout, color: Colors.white),
             onPressed: _logout,
           ),
         ],
       ),
 
       drawer: Drawer(
-        backgroundColor: Colors.white,
-        child: Column(
-          children: [
-            UserAccountsDrawerHeader(
-              decoration: BoxDecoration(
-                color: Color.fromARGB(
-                  255, // Alpha (0 = transparan, 255 = solid)
-                  180, // Red
-                  210, // Greenr
-                  52, // Blue
+        child: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                Color.fromARGB(255, 144, 238, 144), // hijau muda
+                Color.fromARGB(255, 34, 139, 34), // hijau segar
+                Color.fromARGB(255, 0, 128, 128), // teal
+              ],
+            ),
+          ),
+          child: Column(
+            children: [
+              UserAccountsDrawerHeader(
+                decoration: const BoxDecoration(
+                  color: Colors.transparent, // biar ikut gradient parent
+                ),
+                accountName: Text(
+                  userName,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                accountEmail: Text(
+                  userEmail,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                currentAccountPicture: CircleAvatar(
+                  backgroundImage: NetworkImage(userProfilePhoto),
                 ),
               ),
-              accountName: Text(
-                userName,
-                style: TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
+              ListTile(
+                leading: const Icon(Icons.home, color: Colors.white),
+                title: const Text(
+                  'Home',
+                  style: TextStyle(color: Colors.white),
                 ),
+                onTap: () {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(builder: (context) => DashboardPage()),
+                  );
+                },
               ),
-              accountEmail: Text(
-                userEmail,
-                style: TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
+              ListTile(
+                leading: const Icon(Icons.shopping_cart, color: Colors.white),
+                title: const Text(
+                  'Keranjang',
+                  style: TextStyle(color: Colors.white),
                 ),
+                onTap: () {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(builder: (context) => KeranjangPage()),
+                  );
+                },
               ),
-              currentAccountPicture: CircleAvatar(
-                backgroundImage: NetworkImage(userProfilePhoto),
+              ListTile(
+                leading: const Icon(Icons.logout, color: Colors.white),
+                title: const Text(
+                  'Logout',
+                  style: TextStyle(color: Colors.white),
+                ),
+                onTap: _logout,
               ),
-            ),
-            ListTile(
-              leading: Icon(Icons.home),
-              title: Text('Home'),
-              onTap: () {
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(builder: (context) => DashboardPage()),
-                );
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.shopping_cart),
-              title: Text('Keranjang'),
-              onTap: () {
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(builder: (context) => KeranjangPage()),
-                );
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.logout),
-              title: Text('Logout'),
-              onTap: _logout,
-            ),
-          ],
+            ],
+          ),
         ),
       ),
+
       body: Stack(
         children: [
           Container(
@@ -306,8 +338,8 @@ class _DashboardPageState extends State<DashboardPage> {
                                   backgroundColor: const Color.fromARGB(
                                     255,
                                     19,
-                                    42,
                                     166,
+                                    42,
                                   ),
                                   foregroundColor: Colors.white,
                                 ),
