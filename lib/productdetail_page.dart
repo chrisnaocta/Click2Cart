@@ -34,18 +34,39 @@ class ProductDetailPage extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        toolbarHeight: 60,
+        scrolledUnderElevation: 0,
+        centerTitle: true,
+
+        // 🔥 Gradient sama seperti dashboard
+        flexibleSpace: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                Color.fromARGB(255, 144, 238, 144), // hijau muda
+                Color.fromARGB(255, 34, 139, 34), // hijau segar
+                Color.fromARGB(255, 0, 128, 128), // teal aksen
+              ],
+            ),
+          ),
+        ),
+
         title: const Text(
           "Detail Produk",
           style: TextStyle(
+            fontSize: 20,
             fontWeight: FontWeight.bold,
-            color: Color.fromARGB(255, 19, 42, 166),
+            color: Colors.white, // putih biar kontras
           ),
         ),
-        backgroundColor: const Color.fromARGB(255, 252, 252, 255),
-        foregroundColor: const Color.fromARGB(255, 19, 42, 166),
-        toolbarHeight: 60,
-        scrolledUnderElevation: 0,
+
+        foregroundColor: Colors.white, // ikon juga putih
       ),
+
       body: SingleChildScrollView(
         child: Stack(
           children: [
@@ -181,7 +202,7 @@ class ProductDetailPage extends StatelessWidget {
                     },
                     style: ElevatedButton.styleFrom(
                       minimumSize: const Size(double.infinity, 45),
-                      backgroundColor: const Color.fromARGB(255, 4, 28, 162),
+                      backgroundColor: const Color.fromARGB(255, 19, 166, 42),
                       foregroundColor: Colors.white,
                     ),
                     child: const Text(
